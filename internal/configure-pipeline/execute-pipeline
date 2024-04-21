@@ -36,7 +36,7 @@ cat <<EOF > /kratix/metadata/status.yaml
 message: "Redis instance created"
 values:
   host: ${HOST}
-  port: "${PORT}.local.gd:31338"
+  port: ${PORT}
 secretName: "${INSTANCE_NAME}-connection"
 resources:
   - "/planes/kubernetes/local/namespaces/${INSTANCE_NAMESPACE}/providers/apps/Deployment/${INSTANCE_NAME}"
