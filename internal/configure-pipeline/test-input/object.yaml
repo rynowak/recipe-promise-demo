@@ -1,0 +1,9 @@
+apiVersion: promise.example.com/v1
+kind: redis
+metadata:
+  name: my-promise-request
+spec:
+  name: my-amazing-jenkins
+  namespace: my-amazing-namespace
+  application: test-app
+  environment: dev

@@ -1,0 +1,9 @@
+values:
+  host: my-amazing-jenkins.my-amazing-namespace
+  port: "6379.local.gd:31338"
+secretName: "my-amazing-jenkins-connection"
+resources:
+  - "/planes/kubernetes/local/namespaces/my-amazing-namespace/providers/apps/Deployment/my-amazing-jenkins"
+  - "/planes/kubernetes/local/namespaces/my-amazing-namespace/providers/core/Service/my-amazing-jenkins"
+  - "/planes/kubernetes/local/namespaces/my-amazing-namespace/providers/core/Secret/my-amazing-jenkins-connection"
+

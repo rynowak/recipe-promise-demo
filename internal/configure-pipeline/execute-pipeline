@@ -1,8 +1,49 @@
 #!/usr/bin/env sh
-
 set -x
 
-# Add logic for pipeline here.
-# Example:
-# name="$(yq eval '.metadata.name' /input/object.yaml)"
-# sed "s/TBDNAME/${name}/g" /tmp/transfer/filename.yaml > /output/filename.yaml
+# Read input from the promise spec
+INSTANCE_NAME=$(yq eval '.spec.name' /kratix/input/object.yaml)
+INSTANCE_NAMESPACE=$(yq eval '.spec.namespace' /kratix/input/object.yaml)
+APPLICATION=$(yq eval '.spec.application' /kratix/input/object.yaml)
+ENVIRONMENT=$(yq eval '.spec.environment' /kratix/input/object.yaml)
+
+# Update the manifests that will be used to run Redis in Kubernetes
+find /tmp/transfer/redis-instance.yaml -type f -exec sed -i \
+  -e "s/NAME_PLACEHOLDER/${INSTANCE_NAME}/g" \
+  -e "s/NAMESPACE_PLACEHOLDER/${INSTANCE_NAMESPACE}/g" \
+  -e "s/APPLICATION_PLACEHOLDER/${APPLICATION}/g" \
+  -e "s/ENVIRONMENT_PLACEHOLDER/${ENVIRONMENT}/g" \
+  {} \;
+
+# Output values and secrets to be used by the application
+
+# Secrets will go to secret in the cluster
+find /tmp/transfer/connection-secrets.yaml -type f -exec sed -i \
+  -e "s/NAME_PLACEHOLDER/${INSTANCE_NAME}-connection/g" \
+  -e "s/NAMESPACE_PLACEHOLDER/${INSTANCE_NAMESPACE}/g" \
+  -e "s/APPLICATION_PLACEHOLDER/${APPLICATION}/g" \
+  -e "s/ENVIRONMENT_PLACEHOLDER/${ENVIRONMENT}/g" \
+  {} \;
+
+# We're not using a secret right now, but lets pretend.
+
+# Values will contain the non-secret connection values, and the resources
+# that Radius will show in the app graph.
+HOST="${INSTANCE_NAME}.${INSTANCE_NAMESPACE}"
+PORT=6379
+
+cat <<EOF > /kratix/metadata/status.yaml
+message: "Redis instance created"
+values:
+  host: ${HOST}
+  port: "${PORT}.local.gd:31338"
+secretName: "${INSTANCE_NAME}-connection"
+resources:
+  - "/planes/kubernetes/local/namespaces/${INSTANCE_NAMESPACE}/providers/apps/Deployment/${INSTANCE_NAME}"
+  - "/planes/kubernetes/local/namespaces/${INSTANCE_NAMESPACE}/providers/core/Service/${INSTANCE_NAME}"
+  - "/planes/kubernetes/local/namespaces/${INSTANCE_NAMESPACE}/providers/core/Secret/${INSTANCE_NAME}-connection"
+
+EOF
+
+# Copy the manifests to the output directory
+cp /tmp/transfer/*.yaml /kratix/output/

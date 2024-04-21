@@ -1,6 +1,10 @@
-apiVersion: example.promise.syntasso.io/v1
-kind: # kind
+apiVersion: example.promise.syntasso.io/v1alpha1
+kind: redis
 metadata:
-  name: example
+  name: test-db
   namespace: default
 spec:
+  name: test-db
+  namespace: default
+  application: test-app
+  environment: dev

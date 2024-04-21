@@ -1,9 +1,68 @@
 apiVersion: platform.kratix.io/v1alpha1
 kind: Promise
 metadata:
-  name: jenkins
+  name: redis-recipe
   namespace: default
 spec:
-  #dependencies:
-  #api:
-  #workflows:
+  dependencies: []
+  api:
+    apiVersion: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    metadata:
+      name: redis.example.promise.syntasso.io
+    spec:
+      group: example.promise.syntasso.io
+      scope: Namespaced
+      names:
+        plural: redis
+        singular: redis
+        kind: redis
+      versions:
+        - name: v1alpha1
+          served: true
+          storage: true
+          schema:
+            openAPIV3Schema:
+              type: object
+              properties:
+                spec:
+                  type: object
+                  properties:
+                    name: 
+                      type: string
+                    namespace:
+                      type: string
+                    application: 
+                      type: string
+                    environment: 
+                      type: string
+                status:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    values: 
+                      type: object
+                      properties:
+                        host:
+                          type: string
+                        port:
+                          type: integer
+                    resources: 
+                      type: array
+                      items:
+                        type: string
+                    secretName:
+                      type: string
+
+  workflows:
+    resource:
+      configure:
+        - apiVersion: platform.kratix.io/v1alpha1
+          kind: Pipeline
+          metadata:
+            name: redis-configure
+          spec:
+            containers:
+              - name: create-redis-instance
+                image: rynowak.azurecr.io/recipe-promise-demo:latest

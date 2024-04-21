@@ -20,7 +20,7 @@ while [ $# -gt 0 ]; do
         "${PWD}/configure-pipeline" ;;
 
     load)
-      kind load docker-image "${PIPELINE_NAME}" --name platform ;;
+      kind load docker-image "${PIPELINE_NAME}" --name ${CONTEXT_NAME} ;;
 
     push)
       docker push "${PIPELINE_NAME}" ;;
